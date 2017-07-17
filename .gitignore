@@ -1,0 +1,17 @@
+*/CMakeFiles/*
+
+# Clion project files
+*/*.idea
+*.idea
+
+# BitTorrent Sync files
+.sync/*
+
+# Sublime Text 3 project files
+*.sublime-project
+*/*.sublime-project
+*.sublime-workspace
+*/*.sublime-workspace
+
+# gedit autosave files
+*~
