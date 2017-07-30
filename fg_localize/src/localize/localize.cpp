@@ -39,8 +39,8 @@ void updateFactorGraph() {
 }
 
 void predictPose() {
-    Values result = LevenbergMarquadtOptimizer(graph, initial).optimize();
-    --result.find(nextPose).end();
+    //Values result = LevenbergMarquadtOptimizer(graph, initial).optimize();
+    //--result.find(nextPose).end();
 }
 
 int main(int argc, char **argv) {
