@@ -16,31 +16,32 @@ using namespace gtsam;
 
 ros::Publisher posePub;
 
-gtsam::NonlinearFactorGraph graph;
+NonlinearFactorGraph graph;
 Values initial;
-int nextPose = 2;
+Values result;
+int poseNum = 2;
 
 float lastAngle = 0;
 float lastEncoder = 0;
 
 void angleCB(const std_msgs::Float32::ConstPtr &angleMsg) {
-    lastAngle = 2/*angle*/;
+    lastAngle = angleMsg->data;
 }
 
-void encoderCB(const std_msgs::Float32::ConstPtr &encoderMag) {
-    lastEncoder = 2/*enc*/;
+void encoderCB(const std_msgs::Float32::ConstPtr &encoderMsg) {
+    lastEncoder = encoderMsg->data;
 }
 
 void updateFactorGraph() {
     Pose2 odometry(lastEncoder * sin(lastAngle), lastEncoder * cos(lastAngle), lastAngle);
     noiseModel::Diagonal::shared_ptr odometryNoise = noiseModel::Diagonal::Sigmas(Vector3(0.2, 0.2, 0.1));
-    graph.add(BetweenFactor<Pose2>(nextPose - 1, nextPose, odometry, odometryNoise));
-    nextPose++;
+    graph.add(BetweenFactor<Pose2>(poseNum, poseNum + 1, odometry, odometryNoise));
+    initial.insert(poseNum + 1, Pose2(0.0, 0.0, 0.0));
+    poseNum++;
 }
 
 void predictPose() {
-    //Values result = LevenbergMarquadtOptimizer(graph, initial).optimize();
-    //--result.find(nextPose).end();
+    result = LevenbergMarquardtOptimizer(graph, initial).optimize();
 }
 
 int main(int argc, char **argv) {
@@ -54,13 +55,19 @@ int main(int argc, char **argv) {
     Pose2 priorMean(0.0, 0.0, 0.0);
     noiseModel::Diagonal::shared_ptr priorNoise = noiseModel::Diagonal::Sigmas(Vector3(0.2, 0.2, 0.1));
     graph.add(PriorFactor<Pose2>(1, priorMean, priorNoise));
+    initial.insert(1, Pose2(0.0, 0.0, 0.0));
+    initial.insert(2, Pose2(0.0, 0.0, 0.0));
 
     ros::Rate rate(30.0);
     while (ros::ok()) {
         ros::spinOnce();
+        ROS_INFO("update factor graph 1");
         updateFactorGraph();
         ros::spinOnce();
+        ROS_INFO("update factor graph 2");
         updateFactorGraph();
+        ROS_INFO("predictPose");
         predictPose();
+        result.print("Final Result:\n");
     }
 }
