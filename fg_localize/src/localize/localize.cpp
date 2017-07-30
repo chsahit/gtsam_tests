@@ -17,6 +17,7 @@ using namespace gtsam;
 ros::Publisher posePub;
 
 gtsam::NonlinearFactorGraph graph;
+Values initial;
 int nextPose = 2;
 
 float lastAngle = 0;
@@ -30,11 +31,16 @@ void encoderCB(const std_msgs::Float32::ConstPtr &encoderMag) {
     lastEncoder = 2/*enc*/;
 }
 
-void predictPose() {
+void updateFactorGraph() {
     Pose2 odometry(lastEncoder * sin(lastAngle), lastEncoder * cos(lastAngle), lastAngle);
     noiseModel::Diagonal::shared_ptr odometryNoise = noiseModel::Diagonal::Sigmas(Vector3(0.2, 0.2, 0.1));
     graph.add(BetweenFactor<Pose2>(nextPose - 1, nextPose, odometry, odometryNoise));
     nextPose++;
+}
+
+void predictPose() {
+    Values result = LevenbergMarquadtOptimizer(graph, initial).optimize();
+    --result.find(nextPose).end();
 }
 
 int main(int argc, char **argv) {
@@ -52,6 +58,9 @@ int main(int argc, char **argv) {
     ros::Rate rate(30.0);
     while (ros::ok()) {
         ros::spinOnce();
+        updateFactorGraph();
+        ros::spinOnce();
+        updateFactorGraph();
         predictPose();
     }
 }
