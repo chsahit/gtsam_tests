@@ -19,10 +19,10 @@ ros::Publisher posePub;
 NonlinearFactorGraph graph;
 Values initial;
 Values result;
-int poseNum = 2;
 
-float lastAngle = 0;
-float lastEncoder = 0;
+auto poseNum = 2;
+auto lastAngle = 0.f;
+auto lastEncoder = 0.f;
 
 void angleCB(const std_msgs::Float32::ConstPtr &angleMsg) {
     lastAngle = angleMsg->data;
@@ -61,13 +61,12 @@ int main(int argc, char **argv) {
     ros::Rate rate(30.0);
     while (ros::ok()) {
         ros::spinOnce();
-        ROS_INFO("update factor graph 1");
         updateFactorGraph();
         ros::spinOnce();
-        ROS_INFO("update factor graph 2");
         updateFactorGraph();
-        ROS_INFO("predictPose");
         predictPose();
-        result.print("Final Result:\n");
+        auto newestPose = result.at<Pose2>(result.size() - 1);
+        newestPose.print("current post: ");
+        //result.print("Final Result:\n");
     }
 }
