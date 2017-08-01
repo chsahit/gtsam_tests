@@ -66,7 +66,6 @@ int main(int argc, char **argv) {
         updateFactorGraph();
         predictPose();
         auto newestPose = result.at<Pose2>(result.size() - 1);
-        newestPose.print("current post: ");
-        //result.print("Final Result:\n");
+        newestPose.print("current pose: ");
     }
 }
