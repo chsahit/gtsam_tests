@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
     noiseModel::Diagonal::shared_ptr priorNoise = noiseModel::Diagonal::Sigmas(Vector3(0.2, 0.2, 0.1));
     graph.add(PriorFactor<Pose2>(1, priorMean, priorNoise));
     initial.insert(1, Pose2(0.0, 0.0, 0.0));
-    //initial.insert(2, Pose2(0.0, 0.0, 0.0));
 
     ros::Rate rate(3);
     while (ros::ok()) {

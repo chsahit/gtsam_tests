@@ -34,4 +34,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
 )
+
 add_subdirectory(src/localize)
+add_subdirectory(src/model)
