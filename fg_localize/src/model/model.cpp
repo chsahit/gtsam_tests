@@ -15,20 +15,24 @@ auto currentAngle = 0.f;
 auto measuredAngle = 0.f;
 auto measuredEncoder = 0.f;
 
-auto lastTime = -1;
+long double lastTime = -1;
 
 void updatePose() {
     currentAngle = measuredAngle;
-    auto deltaT = 0;
+    long double deltaT = 0L;
     if (lastTime == -1) {
         lastTime = ros::Time::now().toSec();
     }
     else {
-        deltaT = (ros::Time::now().toSec() - lastTime);
-        lastTime = ros::Time::now().toSec();
+        long double now = ros::Time::now().toSec();
+        ROS_INFO_STREAM("now: " << now << " last " << lastTime << " delta " << now - lastTime);
+        deltaT = (now - lastTime);
+        lastTime = now;
     }
     currentX += measuredEncoder * deltaT * cos(measuredAngle);
-    currentY += measuredEncoder * deltaT * sin(measuredAngle);
+    ROS_INFO_STREAM("measuredEncoder: " << measuredEncoder << " deltaT: " << deltaT << " x comp: " << cos(measuredAngle) << "\n");
+    currentY = measuredEncoder * deltaT * sin(measuredAngle) + currentY;
+    ROS_INFO_STREAM("x pos: " << currentX << "\n");
 }
 
 void angleCB(const std_msgs::Float32::ConstPtr &angleMsg) {
@@ -48,7 +52,7 @@ void publishPose() {
 
     msg.pose.pose.position.x = currentX;
     msg.pose.pose.position.y = currentY;
-
+    
     tf::Matrix3x3 eulerMat;
     eulerMat.setEulerYPR(measuredAngle, 0, 0);
     tf::Quaternion q_tf;
