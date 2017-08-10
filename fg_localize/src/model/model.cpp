@@ -30,7 +30,6 @@ void updatePose() {
         lastTime = now;
     }
     currentX += measuredEncoder * deltaT * cos(measuredAngle);
-    ROS_INFO_STREAM("measuredEncoder: " << measuredEncoder << " deltaT: " << deltaT << " x comp: " << cos(measuredAngle) << "\n");
     currentY = measuredEncoder * deltaT * sin(measuredAngle) + currentY;
     ROS_INFO_STREAM("x pos: " << currentX << "\n");
 }
@@ -69,7 +68,7 @@ void publishPose() {
 }
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "localize");
+    ros::init(argc, argv, "model");
     ros::NodeHandle nh;
 
     auto encoderSub = nh.subscribe("/encoder", 1, encoderCB);
