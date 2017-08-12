@@ -25,7 +25,6 @@ void updatePose() {
     }
     else {
         long double now = ros::Time::now().toSec();
-        ROS_INFO_STREAM("now: " << now << " last " << lastTime << " delta " << now - lastTime);
         deltaT = (now - lastTime);
         lastTime = now;
     }

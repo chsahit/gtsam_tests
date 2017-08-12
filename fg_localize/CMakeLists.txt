@@ -37,3 +37,4 @@ include_directories(
 
 add_subdirectory(src/localize)
 add_subdirectory(src/model)
+add_subdirectory(src/noise)

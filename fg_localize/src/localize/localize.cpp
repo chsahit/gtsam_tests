@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Pose.h>
 #include <nav_msgs/Odometry.h>
+#include <tf/transform_datatypes.h>
 
 #include <math.h>
 
@@ -43,6 +44,15 @@ void odomCB(const nav_msgs::Odometry::ConstPtr &odomMsg) {
     lastY = measuredY;
     measuredX = odomMsg->pose.pose.position.x;
     measuredY = odomMsg->pose.pose.position.y;
+    tf::Quaternion q(
+        odomMsg->pose.pose.orientation.x, 
+        odomMsg->pose.pose.orientation.y,
+        odomMsg->pose.pose.orientation.z,
+        odomMsg->pose.pose.orientation.w);
+    tf::Matrix3x3 m(q);
+    double roll, pitch, yaw;
+    m.getRPY(roll, pitch, yaw);
+    lastAngle = yaw;   
     updateFactorGraph();
 }
 
@@ -69,7 +79,7 @@ int main(int argc, char **argv) {
         predictPose();
         if (result.size() > 1) {
             auto newestPose = result.at<Pose2>(result.size() - 1);
-            ROS_INFO_STREAM("Pose: " << newestPose.x() << " " << newestPose.y());
+            ROS_INFO_STREAM("Pose: " << newestPose.x() << " " << newestPose.y() << " " << newestPose.theta());
         }
         rate.sleep();
     }
